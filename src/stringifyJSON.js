@@ -3,37 +3,59 @@
 
 // but you don't so you're going to write it from scratch:
 
-function oneString(obj){
+var stringifyJSON = function(obj) {
+  return "'" + oneString(obj) + "'";
+};
+
+var oneString = function(obj){
+  //base case: nothing given, will return empty string
   var ans = "";
+  
+  //from object, determine how quotes should be placed
   if (typeof obj === 'string'){
     ans = ans + '"' + obj + '"';
   } else if (typeof obj === 'number'){
+    //if number, return the number itself
     ans = obj;
   }else if (Array.isArray(obj)){
+    //if array, add brackets on left and right and recursively call 
+    //oneString on contents
     ans = ans + "[";
+    //for each item in object, add to string recursively
     each(obj, function(a, i){
+      //only put comma if at end
         ans = ans + oneString(a) + (i===(obj.length-1)? "":",");
     });
     ans = ans + "]";
+  }else if (obj !== undefined){
+    ans = ans + "{";
+    var temp = [];
+    each(obj, function(a, key){
+      temp.push(oneString(key) + ":" + oneString(a));
+    });
+    each(temp, function(a, i){
+      ans = ans + a + (i===(temp.length-1)? "":",");
+    });
+    //ans = ans + oneString(temp);
+    ans = ans + "}";
   }
-  return ans;
-}
-
-console.log(oneString("sup"));
-console.log(oneString(["one", "two", "three"]));
-console.log(oneString([1, 2, 3]));
-
-var stringifyJSON = function(obj) {
-  //stringify's JSON. 
-  //base case: no more objects left, return string
-  //could do case for array, obj, individ, etc. 
-  return "'" + oneString(obj) + "'";
   
-  //recursive case: return "one obj" + stringifyJSON(rest of obj)
+  //return the stringified answer
+  return ans;
 };
 
-console.log(stringifyJSON("sup"));
-console.log(stringifyJSON(["one", "two", "three"]));
+var each = function(coll, func){
+  if (Array.isArray(coll)){
+    for (var i = 0; i < coll.length; i++){
+      func(coll[i], i, coll);
+    }
+  } else {
+    for (var key in coll){
+      func(coll[key], key, coll);
+    }
+  }
+};
+
 
 /* 
 test answers
